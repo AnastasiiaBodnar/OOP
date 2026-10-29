@@ -1,77 +1,68 @@
 #include <iostream>
-#include <string>
-#include <iomanip>
 #include <windows.h>
+#include "RentalCar.h"
 
-// 1. Користувацький клас згідно з Варіантом 2 (Прокат автомобілів)
-class RentalCar {
-private:
-    std::string brand;
-    std::string licensePlate;
-    double dailyRate;
-    bool isAvailable;
-    int mileage;
-
-public:
-    // 2. Метод для запису
-    void setData(const std::string& carBrand, const std::string& plate,
-                 double rate, bool available, int carMileage) {
-        brand = carBrand;
-        licensePlate = plate;
-        dailyRate = (rate >= 0) ? rate : 0.0;
-        isAvailable = available;
-        mileage = (carMileage >= 0) ? carMileage : 0;
-    }
-
-    void setDailyRate(double rate) {
-        if (rate >= 0) dailyRate = rate;
-    }
-
-    void setAvailability(bool available) {
-        isAvailable = available;
-    }
-
-    // 2. Метод для перегляду повної інформації
-    void displayInfo() const {
-        std::cout << "-----------------------------------------\n";
-        std::cout << "Автомобіль:        " << brand << "\n";
-        std::cout << "Номерний знак:     " << licensePlate << "\n";
-        std::cout << "Тариф за добу:     " << std::fixed << std::setprecision(2)
-                  << dailyRate << " грн\n";
-        std::cout << "Статус:            " << (isAvailable ? "Вільний до прокату" : "В оренді") << "\n";
-        std::cout << "Поточний пробіг:   " << mileage << " км\n";
-        std::cout << "-----------------------------------------\n";
-    }
-
-    std::string getBrand() const { return brand; }
-    std::string getLicensePlate() const { return licensePlate; }
-    double getDailyRate() const { return dailyRate; }
-    bool getAvailability() const { return isAvailable; }
-    int getMileage() const { return mileage; }
-};
+using namespace std;
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    std::cout << "=== СИСТЕМА ПРОКАТУ АВТОМОБІЛІВ ===\n\n";
+    cout << "=== СИСТЕМА ПРОКАТУ АВТОМОБІЛІВ ===\n\n";
 
-    RentalCar car1;
-    RentalCar car2;
+    // Лр3: конструктор викликається при створенні об'єктів
+    RentalCar car1("Toyota Camry", "BX 1024 AA", 1500.0, true, 45200);
+    RentalCar car2("Skoda Octavia", "BX 5588 BC", 1100.0, false, 98000);
 
-    car1.setData("Toyota Camry", "BX 1024 AA", 1500.0, true, 45200);
-    car2.setData("Skoda Octavia", "BX 5588 BC", 1100.0, false, 98000);
+    int choice;
+    do {
+        cout << "\n============== МЕНЮ ==============\n";
+        cout << "1. Перегляд даних (Лр2)\n";
+        cout << "2. Запис нових даних (Лр2)\n";
+        cout << "3. Дружня функція: вартість оренди (Лр3)\n";
+        cout << "4. Деструктор: блок { } (Лр3)\n";
+        cout << "0. Вихід\n";
+        cout << "Ваш вибір: ";
+        cin >> choice;
 
-    std::cout << "Інформація про перше авто:\n";
-    car1.displayInfo();
-
-    std::cout << "\nІнформація про друге авто:\n";
-    car2.displayInfo();
-
-    std::cout << "\nЗміна статусу для другого авто (повернення з прокату)..." << std::endl;
-    car2.setAvailability(true);
-    std::cout << "Новий статус автомобіля [" << car2.getBrand() << "]: "
-              << (car2.getAvailability() ? "Вільний" : "В оренді") << std::endl;
+        switch (choice) {
+            case 1:  // Лр2: метод для перегляду полів
+                car1.displayInfo();
+                car2.displayInfo();
+                break;
+            case 2:  // Лр2: метод для запису полів
+                car1.setData("Honda Civic", "BX 3030 CC", 1300.0, true, 20500);
+                car1.displayInfo();
+                break;
+            case 3: {  // Лр3: дружня функція
+                int num, days;
+                cout << "Яке авто?\n";
+                cout << "1 - " << car1.getBrand() << " (" << car1.getDailyRate() << " грн/доба)\n";
+                cout << "2 - " << car2.getBrand() << " (" << car2.getDailyRate() << " грн/доба)\n";
+                cout << "Ваш вибір: ";
+                cin >> num;
+                cout << "Кількість діб: ";
+                cin >> days;
+                RentalCar& car = (num == 1) ? car1 : car2;
+                double cost = calculateRentalCost(car, days);
+                if (car.getAvailability()) {
+                    cout << "Вартість оренди " << car.getBrand() << ": " << cost << " грн\n";
+                }
+                break;
+            }
+            case 4: {  // Лр3: деструктор, об'єкт живе тільки всередині блоку
+                cout << "--- Вхід у блок ---\n";
+                RentalCar temp("Renault Logan", "BX 7777 KK", 900.0, true, 12000);
+                cout << "--- Вихід з блоку ---\n";
+                break;
+            }
+            case 0:
+                cout << "Кінець програми.\n";
+                break;
+            default:
+                cout << "Невірний пункт меню!\n";
+        }
+    } while (choice != 0);
 
     return 0;
 }
